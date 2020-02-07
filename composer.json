@@ -2,6 +2,7 @@
     "require": {
         "slim/slim": "4.*",
         "slim/psr7": "^1.0",
-        "selective/basepath": "^0.2.0"
+        "selective/basepath": "^0.2.0",
+        "slim/php-view": "^2.2"
     }
 }

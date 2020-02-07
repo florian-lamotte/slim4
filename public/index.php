@@ -3,6 +3,7 @@ use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Selective\BasePath\BasePathMiddleware;
 use Slim\Factory\AppFactory;
+use Slim\Views\PhpRenderer;
 
 require __DIR__ . '/../vendor/autoload.php';
 
@@ -25,7 +26,11 @@ $app->get('/', function (Request $request, Response $response) {
 });
 
 $app->get('/posts', function (Request $request, Response $response) {
-    $response->getBody()->write("Tous les messages.");
+	// https://packagist.org/packages/slim/php-view
+	// php-view ne fourni pas de protection XSS, 
+	// utiliser htmlspecialchars() ou https://github.com/slimphp/Twig-View
+    $renderer = new PhpRenderer('../templates');
+    $response = $renderer->render($response, "posts.php");
     return $response;
 });
 
