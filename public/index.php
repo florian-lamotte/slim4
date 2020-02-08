@@ -4,8 +4,12 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Selective\BasePath\BasePathMiddleware;
 use Slim\Factory\AppFactory;
 use Slim\Views\PhpRenderer;
+use DI\Container;
 
 require __DIR__ . '/../vendor/autoload.php';
+
+$container = new Container();
+AppFactory::setContainer($container);
 
 $app = AppFactory::create();
 
@@ -20,6 +24,23 @@ $app->add(new BasePathMiddleware($app));
 // http://www.slimframework.com/docs/v4/deployment/deployment.html
 $app->addErrorMiddleware(true, true, true);
 
+$container->set('view', function () {
+    return new PhpRenderer('../templates');
+});
+
+$container->set('db', function () {
+    $host = 'localhost';
+    $dbname = 'slim3';
+    $name = 'root';
+    $pass = '';
+
+    $pdo = new PDO('mysql:host='.$host.';dbname='.$dbname.'', $name, $pass);
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+
+    return $pdo;
+});
+
 $app->get('/', function (Request $request, Response $response) {
     $response->getBody()->write("Hello world!");
     return $response;
@@ -29,14 +50,11 @@ $app->get('/posts', function (Request $request, Response $response) {
 	// https://packagist.org/packages/slim/php-view
 	// php-view ne fourni pas de protection XSS, 
 	// utiliser htmlspecialchars() ou https://github.com/slimphp/Twig-View
-    $renderer = new PhpRenderer('../templates');
 
-    require_once('../classes/Connexion.php');
-
-    $req = $pdo->query('SELECT * FROM posts');
+    $req = $this->get('db')->query('SELECT * FROM posts');
 	$posts = $req->fetchAll();
 
-    $response = $renderer->render($response, "posts.php", ['posts' => $posts]);
+    $response = $this->get('view')->render($response, "posts.php", ['posts' => $posts]);
     return $response;
 });
 
