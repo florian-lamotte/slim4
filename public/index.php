@@ -30,7 +30,13 @@ $app->get('/posts', function (Request $request, Response $response) {
 	// php-view ne fourni pas de protection XSS, 
 	// utiliser htmlspecialchars() ou https://github.com/slimphp/Twig-View
     $renderer = new PhpRenderer('../templates');
-    $response = $renderer->render($response, "posts.php");
+
+    require_once('../classes/Connexion.php');
+
+    $req = $pdo->query('SELECT * FROM posts');
+	$posts = $req->fetchAll();
+
+    $response = $renderer->render($response, "posts.php", ['posts' => $posts]);
     return $response;
 });
 
