@@ -6,3 +6,6 @@ https://github.com/selective-php/basepath
 
 # Création de vues
 https://packagist.org/packages/slim/php-view
+
+# Containers
+http://php-di.org/doc/frameworks/slim.html
